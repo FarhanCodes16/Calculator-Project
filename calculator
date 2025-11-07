@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        /* Floating circles animation */
+        body::before,
+        body::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s infinite ease-in-out;
+        }
+
+        body::before {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        body::after {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(20px) rotate(180deg); }
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .calculator h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 28px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 36px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: right;
+            margin-bottom: 20px;
+            min-height: 80px;
+            word-wrap: break-word;
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        #result {
+            position: relative;
+            z-index: 1;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            padding: 25px;
+            font-size: 20px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            background: #f0f0f0;
+            color: #333;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .operator {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .operator:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .equals {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            grid-column: span 2;
+        }
+
+        .equals:hover {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+        }
+
+        .clear {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .clear:hover {
+            background: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
+        }
+
+        .delete {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .delete:hover {
+            background: linear-gradient(135deg, #ee5a6f 0%, #ff6b6b 100%);
+        }
+
+        /* Result animation */
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .pop {
+            animation: popIn 0.4s ease-out;
+        }
+
+        /* Error shake animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 20px;
+                margin: 20px;
+            }
+
+            button {
+                padding: 20px;
+                font-size: 18px;
+            }
+
+            .display {
+                font-size: 28px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>✨ Calculator</h1>
+        <div class="display">
+            <div id="result">0</div>
+        </div>
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button class="delete" onclick="deleteLast()">⌫</button>
+            <button class="operator" onclick="appendToDisplay('/')">÷</button>
+            <button class="operator" onclick="appendToDisplay('*')">×</button>
+            
+            <button onclick="appendToDisplay('7')">7</button>
+            <button onclick="appendToDisplay('8')">8</button>
+            <button onclick="appendToDisplay('9')">9</button>
+            <button class="operator" onclick="appendToDisplay('-')">−</button>
+            
+            <button onclick="appendToDisplay('4')">4</button>
+            <button onclick="appendToDisplay('5')">5</button>
+            <button onclick="appendToDisplay('6')">6</button>
+            <button class="operator" onclick="appendToDisplay('+')">+</button>
+            
+            <button onclick="appendToDisplay('1')">1</button>
+            <button onclick="appendToDisplay('2')">2</button>
+            <button onclick="appendToDisplay('3')">3</button>
+            <button class="operator" onclick="appendToDisplay('%')">%</button>
+            
+            <button onclick="appendToDisplay('0')">0</button>
+            <button onclick="appendToDisplay('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('result');
+        let currentValue = '0';
+
+        function appendToDisplay(value) {
+            if (currentValue === '0' && value !== '.') {
+                currentValue = value;
+            } else {
+                currentValue += value;
+            }
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            display.textContent = currentValue;
+        }
+
+        function clearDisplay() {
+            currentValue = '0';
+            updateDisplay();
+            display.classList.add('pop');
+            setTimeout(() => display.classList.remove('pop'), 400);
+        }
+
+        function deleteLast() {
+            if (currentValue.length > 1) {
+                currentValue = currentValue.slice(0, -1);
+            } else {
+                currentValue = '0';
+            }
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                // Replace × and ÷ with * and /
+                let expression = currentValue
+                    .replace(/×/g, '*')
+                    .replace(/÷/g, '/')
+                    .replace(/−/g, '-');
+                
+                // Evaluate the expression
+                let result = eval(expression);
+                
+                // Check for valid result
+                if (isNaN(result) || !isFinite(result)) {
+                    throw new Error('Invalid calculation');
+                }
+                
+                // Round to avoid floating point errors
+                currentValue = Math.round(result * 100000000) / 100000000 + '';
+                
+                // Add pop animation
+                display.classList.add('pop');
+                setTimeout(() => display.classList.remove('pop'), 400);
+                
+            } catch (error) {
+                currentValue = 'Error';
+                display.classList.add('shake');
+                setTimeout(() => {
+                    display.classList.remove('shake');
+                    currentValue = '0';
+                    updateDisplay();
+                }, 1000);
+            }
+            updateDisplay();
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9' || key === '.') {
+                appendToDisplay(key);
+            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                appendToDisplay(key);
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearDisplay();
+            } else if (key === 'Backspace') {
+                event.preventDefault();
+                deleteLast();
+            }
+        });
+    </script>
+</body>
+</html>
